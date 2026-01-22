@@ -1,0 +1,7 @@
+{
+  "name": "数字魔法 Digital Magic AI V2",
+  "description": "专业级内容商业化 AI 创作平台，集图像、视频、文案于一体的数字魔法工作室。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
