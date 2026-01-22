@@ -157,7 +157,7 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
              <MagicLogo size="md" collapsed={isCollapsed} />
           </div>
 
-          <nav className="flex-grow space-y-3 custom-scrollbar overflow-y-auto px-1">
+          <nav className="flex-grow space-y-2 custom-scrollbar overflow-y-auto px-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -166,7 +166,7 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
                   to={item.path} 
                   className={`
                     relative flex items-center rounded-2xl transition-all duration-500 group overflow-hidden
-                    ${isCollapsed ? 'justify-center p-4' : 'gap-4 px-5 py-3.5'} 
+                    ${isCollapsed ? 'justify-center p-3.5' : 'gap-4 px-5 py-3'} 
                     ${isActive 
                       ? `bg-white/5 ${item.color} shadow-inner aurora-border` 
                       : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'}
