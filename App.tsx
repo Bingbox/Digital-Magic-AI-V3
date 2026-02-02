@@ -90,7 +90,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
     <>
       {isOpen && <div className="fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm" onClick={toggle} />}
       <aside className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'w-20' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} border-r border-white/5`}>
-        <div className={`flex flex-col h-full bg-[#020617]/40 backdrop-blur-3xl p-4 relative group/sidebar transition-all duration-500 ${isCollapsed ? 'shadow-none' : 'shadow-[20px_0_50px_rgba(0,0,0,0.2)]'}`}>
+        <div className={`flex flex-col h-full bg-[#020617]/40 backdrop-blur-3xl p-4 relative group/sidebar transition-all duration-500 overflow-x-hidden ${isCollapsed ? 'shadow-none' : 'shadow-[20px_0_50px_rgba(0,0,0,0.2)]'}`}>
           <button 
             onClick={toggleCollapse} 
             className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-[#020617] border border-white/10 backdrop-blur-md rounded-full items-center justify-center text-white z-20 shadow-2xl opacity-0 group-hover/sidebar:opacity-100 hover:scale-125 active:scale-90 transition-all duration-300 hover:border-indigo-500/50"
@@ -102,7 +102,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
              <MagicLogo size="md" collapsed={isCollapsed} />
           </div>
 
-          <nav className="flex-grow space-y-2 overflow-y-auto no-scrollbar">
+          <nav className="flex-grow space-y-2 overflow-y-auto overflow-x-hidden no-scrollbar">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -135,7 +135,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
           </nav>
 
           {/* 底部独立个人信息菜单 */}
-          <div className={`mt-auto pt-6 border-t border-white/5 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
+          <div className={`mt-auto pt-4 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
              <Link 
               to="/profile" 
               className={`
