@@ -8,7 +8,7 @@ export enum AIModel {
   VEO_HD = 'veo-3.1-generate-preview'
 }
 
-export type ToolCategory = 'image' | 'text' | 'video' | 'history' | 'billing';
+export type ToolCategory = 'image' | 'text' | 'video' | 'history' | 'billing' | 'commerce';
 
 export interface User {
   id: string;

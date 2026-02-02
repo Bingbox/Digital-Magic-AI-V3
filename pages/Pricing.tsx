@@ -2,24 +2,26 @@
 import React from 'react';
 import { Check, Zap, Shield, Crown, Star } from 'lucide-react';
 import { PRICING_PLANS } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Pricing = () => {
+  const { t } = useLanguage();
   return (
-    <div className="max-w-6xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div className="max-w-6xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20">
       <div className="text-center space-y-4 mb-16">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">开启您的商业创意新纪元</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          选择最适合您业务规模的方案，解锁更多 AI 高级功能和更快的生成速度。
+        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-tight">{t('pricingTitle')}</h1>
+        <p className="text-slate-400 max-w-2xl mx-auto font-medium">
+          {t('pricingSub')}
         </p>
         <div className="flex items-center justify-center gap-4 pt-4">
           <div className="flex -space-x-2">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700 overflow-hidden">
-                <img src={`https://picsum.photos/seed/${i+50}/32/32`} alt="user" />
+              <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700 overflow-hidden shadow-xl">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${i}`} alt="user" />
               </div>
             ))}
           </div>
-          <span className="text-xs text-slate-500">已有超过 10,000+ 品牌创作者选择我们</span>
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('trustedBy')}</span>
         </div>
       </div>
 
@@ -28,31 +30,31 @@ const Pricing = () => {
           <div 
             key={plan.id}
             className={`
-              relative flex flex-col p-8 rounded-3xl border transition-all duration-500 hover:-translate-y-2
+              relative flex flex-col p-10 rounded-2xl border transition-all duration-500 hover:-translate-y-2 group
               ${plan.highlight 
-                ? 'bg-gradient-to-b from-indigo-900/40 to-slate-900 border-indigo-500 shadow-2xl shadow-indigo-600/20' 
-                : 'bg-slate-900 border-slate-800'}
+                ? 'bg-gradient-to-b from-indigo-900/40 to-slate-950 border-indigo-500 shadow-2xl shadow-indigo-600/20' 
+                : 'bg-slate-900 border-slate-800 hover:border-slate-700'}
             `}
           >
             {plan.highlight && (
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full flex items-center gap-2 shadow-2xl uppercase tracking-widest">
                 <Crown size={12} fill="white" />
-                RECOMMENDED
+                {t('recommended')}
               </div>
             )}
             
             <div className="mb-8">
-              <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+              <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">{plan.name}</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold text-white">¥{plan.price}</span>
-                {plan.price !== 'Custom' && <span className="text-slate-500 text-sm">/月</span>}
+                <span className="text-4xl font-black text-white">¥{plan.price}</span>
+                {plan.price !== 'Custom' && <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">/{t('month')}</span>}
               </div>
             </div>
 
-            <ul className="space-y-4 mb-8 flex-grow">
+            <ul className="space-y-4 mb-10 flex-grow">
               {plan.features.map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-sm text-slate-300">
-                  <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${plan.highlight ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'}`}>
+                <li key={idx} className="flex items-start gap-4 text-sm text-slate-300 font-medium">
+                  <div className={`mt-0.5 w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 ${plan.highlight ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'}`}>
                     <Check size={12} />
                   </div>
                   {feature}
@@ -61,9 +63,9 @@ const Pricing = () => {
             </ul>
 
             <button className={`
-              w-full py-4 rounded-2xl font-bold transition-all
+              w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl active:scale-[0.98]
               ${plan.highlight 
-                ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg' 
+                ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20' 
                 : 'bg-slate-800 hover:bg-slate-700 text-white'}
             `}>
               {plan.buttonText}
@@ -72,16 +74,16 @@ const Pricing = () => {
         ))}
       </div>
 
-      <div className="mt-20 p-8 rounded-3xl bg-slate-900/50 border border-slate-800 text-center space-y-6">
-        <h3 className="text-xl font-bold">常见问题</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-          <div className="space-y-2">
-            <h4 className="font-semibold text-slate-200">生成的内容有版权风险吗？</h4>
-            <p className="text-sm text-slate-500">OmniContent AI 生成的内容均为原创，用户拥有生成的商业用途使用权，具体请参考我们的商业授权协议。</p>
+      <div className="mt-20 p-12 rounded-2xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-xl shadow-2xl">
+        <h3 className="text-2xl font-black text-white text-center mb-12 uppercase tracking-tight">{t('faq')}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
+          <div className="space-y-3">
+            <h4 className="text-sm font-black text-slate-200 uppercase tracking-widest">{t('copyrightQ')}</h4>
+            <p className="text-sm text-slate-500 leading-relaxed font-medium">{t('copyrightA')}</p>
           </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold text-slate-200">支持批量处理吗？</h4>
-            <p className="text-sm text-slate-500">是的，专业版及以上用户可以通过我们的“批量队列”功能，一次性处理多达 50 个生成任务。</p>
+          <div className="space-y-3">
+            <h4 className="text-sm font-black text-slate-200 uppercase tracking-widest">{t('batchQ')}</h4>
+            <p className="text-sm text-slate-500 leading-relaxed font-medium">{t('batchA')}</p>
           </div>
         </div>
       </div>

@@ -16,8 +16,10 @@ import {
   ChevronDown,
   X,
   MoreVertical,
-  Layers
+  Layers,
+  Wand2
 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface MagicWork {
   id: string;
@@ -30,16 +32,16 @@ interface MagicWork {
 }
 
 const MOCK_WORKS: MagicWork[] = [
-  { id: '1', title: '极简咖啡机海报', type: 'image', date: '2025-05-12', previewUrl: 'https://images.unsplash.com/photo-1544787210-2213d44ad53e?w=400&q=80', tags: ['E-commerce', 'Minimalist'], size: '2.4 MB' },
-  { id: '2', title: '智能手表营销脚本', type: 'text', date: '2025-05-12', previewUrl: 'https://images.unsplash.com/photo-1508685096489-7aac291ba597?w=400&q=80', tags: ['Social Media', 'Marketing'] },
-  { id: '3', title: '猫咪乐园宣传片', type: 'video', date: '2025-05-11', previewUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&q=80', tags: ['Ads', 'Veo 3.1'], size: '15.8 MB' },
-  { id: '4', title: '节日促销主图', type: 'image', date: '2025-05-10', previewUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&q=80', tags: ['Sales', 'Holiday'], size: '1.9 MB' },
-  { id: '5', title: '全屋软装AI预览', type: 'image', date: '2025-05-09', previewUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80', tags: ['Interior', 'Realism'], size: '3.1 MB' },
-  { id: '6', title: '户外运动剪辑', type: 'video', date: '2025-05-08', previewUrl: 'https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?w=400&q=80', tags: ['Action', 'Sports'], size: '42.0 MB' },
-  { id: '7', title: '新品发布会直播脚本', type: 'text', date: '2025-05-07', previewUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80', tags: ['Live', 'Script'] },
+  { id: '1', title: '极简咖啡机海报', type: 'image', date: '2025-05-12', previewUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800', tags: ['E-commerce', 'Minimalist'], size: '2.4 MB' },
+  { id: '2', title: '智能手表营销脚本', type: 'text', date: '2025-05-12', previewUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800', tags: ['Social Media', 'Marketing'] },
+  { id: '3', title: '数字宠物乐园宣传片', type: 'video', date: '2025-05-11', previewUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800', tags: ['Ads', 'Veo 3.1'], size: '15.8 MB' },
+  { id: '4', title: '节日促销主图', type: 'image', date: '2025-05-10', previewUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=800', tags: ['Sales', 'Holiday'], size: '1.9 MB' },
+  { id: '5', title: '全屋软装AI预览', type: 'image', date: '2025-05-09', previewUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800', tags: ['Interior', 'Realism'], size: '3.1 MB' },
+  { id: '6', title: '运动装备详情页', type: 'image', date: '2025-05-08', previewUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800', tags: ['Action', 'Sports'], size: '4.2 MB' },
 ];
 
 const HistoryStudio = () => {
+  const { t } = useLanguage();
   const [filterType, setFilterType] = useState<'all' | 'image' | 'text' | 'video'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWork, setSelectedWork] = useState<MagicWork | null>(null);
@@ -63,33 +65,32 @@ const HistoryStudio = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <div className="p-2 bg-indigo-500/20 rounded-lg">
               <History size={24} className="text-indigo-400" />
             </div>
-            魔法档案
+            {t('historyTitle')}
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">管理您在魔法阵中创造的所有作品</p>
+          <p className="text-slate-500 mt-2 font-medium">{t('historySub')}</p>
         </div>
         
         <div className="flex items-center gap-2">
            <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white text-xs font-bold transition-all">
              <Layers size={16} />
-             批量导出
+             {t('exportBatch')}
            </button>
         </div>
       </header>
 
-      {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-grow relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
           <input 
             type="text" 
-            placeholder="搜索作品名称..." 
+            placeholder={t('searchPlaceholder')} 
             className="w-full bg-[#0f172a]/60 border border-slate-800 rounded-xl py-3.5 pl-12 pr-4 text-sm focus:outline-none focus:border-indigo-500 transition-all backdrop-blur-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -97,19 +98,18 @@ const HistoryStudio = () => {
         </div>
         
         <div className="flex bg-[#0f172a]/60 border border-slate-800 rounded-xl p-1 gap-1 backdrop-blur-xl">
-          {['all', 'image', 'text', 'video'].map((t) => (
+          {(['all', 'image', 'text', 'video'] as const).map((type) => (
             <button
-              key={t}
-              onClick={() => setFilterType(t as any)}
-              className={`px-6 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-widest ${filterType === t ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-6 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-widest ${filterType === type ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              {t === 'all' ? '全部' : t === 'image' ? '图片' : t === 'text' ? '文案' : '视频'}
+              {t(type)}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Works Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredWorks.map((work) => (
           <div key={work.id} className="group flex flex-col bg-slate-900/40 border border-slate-800/60 rounded-xl overflow-hidden hover:border-indigo-500/40 transition-all duration-300">
@@ -139,32 +139,57 @@ const HistoryStudio = () => {
         ))}
       </div>
 
-      {/* Detail Modal */}
       {selectedWork && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="relative w-full max-w-5xl bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
             <button onClick={() => setSelectedWork(null)} className="absolute top-6 right-6 p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 hover:text-white transition-all z-10"><X size={20} /></button>
             <div className="flex flex-col lg:flex-row h-full max-h-[85vh]">
-              <div className="flex-grow bg-black flex items-center justify-center p-8 overflow-hidden">
+              <div className="flex-grow bg-black flex items-center justify-center p-8 overflow-hidden min-h-[300px]">
                 {selectedWork.type === 'image' && <img src={selectedWork.previewUrl} className="max-w-full max-h-full object-contain rounded-xl" alt="preview" />}
-                {selectedWork.type === 'video' && <video controls className="relative max-w-full max-h-full rounded-xl shadow-2xl shadow-black" autoPlay src="https://www.w3schools.com/html/mov_bbb.mp4" />}
+                {selectedWork.type === 'video' && <video controls className="relative max-w-full max-h-full rounded-xl" autoPlay src={selectedWork.previewUrl} />}
                 {selectedWork.type === 'text' && (
                   <div className="w-full h-full p-8 overflow-y-auto bg-slate-950/50 rounded-xl border border-slate-800">
-                    <article className="prose prose-invert prose-indigo max-w-none text-slate-300">
-                      <h2 className="text-white">{selectedWork.title}</h2>
-                      <p>内容存档预览...</p>
+                    <article className="prose prose-invert max-w-none text-slate-300">
+                      <h2 className="text-white uppercase tracking-tight">{selectedWork.title}</h2>
+                      <div className="mt-4 p-4 bg-white/5 rounded-lg border border-white/5 font-medium">
+                        Content Archive Preview
+                      </div>
                     </article>
                   </div>
                 )}
               </div>
               <div className="w-full lg:w-96 p-8 border-l border-slate-800 flex flex-col gap-8 bg-slate-900/50">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-black text-white leading-tight">{selectedWork.title}</h2>
-                  <p className="text-sm text-slate-500">创建于 {selectedWork.date}</p>
+                  <h2 className="text-2xl font-black text-white leading-tight uppercase">{selectedWork.title}</h2>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="text-indigo-400" />
+                    <p className="text-sm text-slate-500">{t('createdDate')} {selectedWork.date}</p>
+                  </div>
                 </div>
+                
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t('metadata')}</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                     <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <p className="text-[9px] text-slate-600 font-bold uppercase mb-1">Size</p>
+                        <p className="text-xs font-black text-white">{selectedWork.size || 'N/A'}</p>
+                     </div>
+                     <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        <p className="text-[9px] text-slate-600 font-bold uppercase mb-1">Format</p>
+                        <p className="text-xs font-black text-white uppercase">{selectedWork.type}</p>
+                     </div>
+                  </div>
+                </div>
+
                 <div className="mt-auto space-y-3">
-                   <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3">
-                     <Download size={18} />下载资源
+                   <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]">
+                     <Download size={18} />{t('downloadAsset')}
+                   </button>
+                   <button className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3">
+                     <Share2 size={18} />{t('shareWork')}
+                   </button>
+                   <button className="w-full py-2 text-rose-500/50 hover:text-rose-500 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all mt-4">
+                     <Trash2 size={14} /> {t('deleteArchive')}
                    </button>
                 </div>
               </div>
