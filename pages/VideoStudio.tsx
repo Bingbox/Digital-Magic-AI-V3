@@ -11,7 +11,9 @@ import {
   Clapperboard,
   Film,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  MonitorPlay,
+  ZapIcon
 } from 'lucide-react';
 import { VIDEO_TOOLS, ENERGY_COSTS } from '../constants';
 import { GeminiService } from '../services/gemini';
@@ -58,7 +60,6 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
       return;
     }
     
-    // Check for API Key if needed
     if (typeof window !== 'undefined' && (window as any).aistudio) {
       const hasKey = await (window as any).aistudio.hasSelectedApiKey();
       if (!hasKey) {
@@ -75,11 +76,9 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
 
     try {
       const model = renderMode === 'HD' ? AIModel.VEO_HD : AIModel.VEO_FAST;
-      // We assume GeminiService handles the model selection internally or we pass it
       const url = await GeminiService.generateVideo(`${selectedTool.name}: ${prompt}`, aspectRatio);
       setVideoUrl(url);
 
-      // 扣费逻辑
       setUser({
         ...user,
         magicEnergy: user.magicEnergy - cost
@@ -101,8 +100,8 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
   return (
     <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="w-full lg:w-96 space-y-6">
-        <div className="bg-[#0f172a]/40 border border-slate-800 rounded-2xl p-8 space-y-8 backdrop-blur-xl">
-          <h2 className="text-xl font-black flex items-center gap-3">
+        <div className="bg-[#0f172a]/60 border border-slate-800 rounded-2xl p-8 space-y-8 backdrop-blur-xl shadow-2xl">
+          <h2 className="text-xl font-black flex items-center gap-3 text-white">
             <div className="p-2 bg-rose-500/20 rounded-lg">
               <Video size={20} className="text-rose-400" />
             </div>
@@ -110,29 +109,33 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
           </h2>
 
           <div className="space-y-4">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">选择渲染模式</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">渲染引擎模式</label>
+            <div className="grid grid-cols-2 gap-2">
                <button 
                 onClick={() => setRenderMode('HD')}
-                className={`p-4 rounded-xl border-2 transition-all flex flex-col gap-1 items-start ${renderMode === 'HD' ? 'border-rose-500 bg-rose-500/5' : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'}`}
+                className={`flex items-center gap-3 px-4 py-4 rounded-xl text-[11px] font-black transition-all border
+                  ${renderMode === 'HD' 
+                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20 border-rose-500' 
+                    : 'bg-slate-800/30 border-slate-800/50 text-slate-400 hover:bg-slate-800'}`}
                >
-                 <div className="flex justify-between w-full">
-                    <span className={`text-[10px] font-black uppercase ${renderMode === 'HD' ? 'text-rose-400' : 'text-slate-500'}`}>高清旗舰</span>
-                    {renderMode === 'HD' && <CheckCircle2 size={12} className="text-rose-500" />}
+                 <MonitorPlay size={18} />
+                 <div className="flex flex-col items-start leading-none">
+                    <span>高清旗舰</span>
+                    <span className={`text-[8px] mt-1 ${renderMode === 'HD' ? 'text-rose-200' : 'text-slate-600'}`}>{ENERGY_COSTS.VIDEO_HD} 能量</span>
                  </div>
-                 <span className="text-sm font-black text-white">1080P HD</span>
-                 <span className="text-[9px] font-bold text-slate-500">消耗: {ENERGY_COSTS.VIDEO_HD}</span>
                </button>
                <button 
                 onClick={() => setRenderMode('FAST')}
-                className={`p-4 rounded-xl border-2 transition-all flex flex-col gap-1 items-start ${renderMode === 'FAST' ? 'border-rose-500 bg-rose-500/5' : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'}`}
+                className={`flex items-center gap-3 px-4 py-4 rounded-xl text-[11px] font-black transition-all border
+                  ${renderMode === 'FAST' 
+                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20 border-rose-500' 
+                    : 'bg-slate-800/30 border-slate-800/50 text-slate-400 hover:bg-slate-800'}`}
                >
-                 <div className="flex justify-between w-full">
-                    <span className={`text-[10px] font-black uppercase ${renderMode === 'FAST' ? 'text-rose-400' : 'text-slate-500'}`}>快速预览</span>
-                    {renderMode === 'FAST' && <CheckCircle2 size={12} className="text-rose-500" />}
+                 <ZapIcon size={18} />
+                 <div className="flex flex-col items-start leading-none">
+                    <span>快速预览</span>
+                    <span className={`text-[8px] mt-1 ${renderMode === 'FAST' ? 'text-rose-200' : 'text-slate-600'}`}>{ENERGY_COSTS.VIDEO_FAST} 能量</span>
                  </div>
-                 <span className="text-sm font-black text-white">720P Fast</span>
-                 <span className="text-[9px] font-bold text-slate-500">消耗: {ENERGY_COSTS.VIDEO_FAST}</span>
                </button>
             </div>
           </div>
@@ -145,7 +148,7 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
                    key={ratio}
                    onClick={() => setAspectRatio(ratio)}
                    className={`
-                     flex-grow py-3 rounded-lg text-xs font-black border transition-all
+                     flex-grow py-3 rounded-lg text-[10px] font-black border transition-all uppercase tracking-widest
                      ${aspectRatio === ratio 
                        ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' 
                        : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-700'}
@@ -163,7 +166,7 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={`描绘创意场景...`}
-              className="w-full min-h-[160px] bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-sm focus:outline-none focus:border-rose-500 transition-all resize-none placeholder:text-slate-700"
+              className="w-full min-h-[160px] bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-rose-500 transition-all resize-none placeholder:text-slate-700"
             />
           </div>
 
@@ -192,10 +195,10 @@ const VideoStudio = ({ user, setUser, onOpenAuth }: Props) => {
       <div className="flex-grow">
         <div className="bg-[#0f172a]/20 border border-slate-900 rounded-2xl min-h-[640px] flex flex-col relative overflow-hidden backdrop-blur-sm shadow-2xl">
           <div className="p-8 border-b border-slate-900 flex items-center justify-between">
-            <h3 className="text-lg font-black tracking-tight flex items-center gap-3">
+            <h3 className="text-lg font-black tracking-tight text-white flex items-center gap-3">
               <Film size={20} className="text-rose-500" />
               渲染预览窗口
-              <span className="text-[10px] font-bold text-slate-500 bg-slate-900 px-3 py-1 rounded-full">{renderMode} MODE</span>
+              <span className="text-[10px] font-bold text-slate-500 bg-slate-900 px-3 py-1 rounded-full uppercase tracking-widest">{renderMode} MODE</span>
             </h3>
             {videoUrl && (
               <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs text-white font-black uppercase tracking-widest transition-all shadow-lg active:scale-95">

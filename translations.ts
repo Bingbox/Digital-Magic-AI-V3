@@ -5,8 +5,8 @@ export const translations = {
   zh: {
     // General
     appName: "数字魔法",
-    appSubName: "DIGITAL MAGIC AI",
-    dashboard: "仪表盘",
+    appSubName: "DIGITAL MAGIC",
+    dashboard: "魔法概览",
     imageMagic: "图片魔法",
     textMagic: "文案魔法",
     videoMagic: "视频魔法",
@@ -182,8 +182,8 @@ export const translations = {
   en: {
     // General
     appName: "Digital Magic",
-    appSubName: "DIGITAL MAGIC AI",
-    dashboard: "Dashboard",
+    appSubName: "DIGITAL MAGIC",
+    dashboard: "Magic Overview",
     imageMagic: "Image Magic",
     textMagic: "Text Magic",
     videoMagic: "Video Magic",

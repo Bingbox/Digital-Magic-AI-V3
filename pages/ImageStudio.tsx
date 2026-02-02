@@ -75,7 +75,7 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
         const newImages = await Promise.all(promises);
         setResults([...newImages, ...results]);
       } else {
-        const imageUrl = await GeminiService.generateImage(`${selectedTool.name}效果: ${prompt}, 顶级商业摄影质感`, options);
+        const imageUrl = await GeminiService.generateImage(`${selectedTool.name}效果: ${prompt},顶级商业摄影质感`, options);
         setResults([imageUrl, ...results]);
       }
       setUser({ ...user, magicEnergy: user.magicEnergy - cost });
@@ -93,7 +93,7 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
-      {/* 左侧控制台 - 与 TextStudio 保持一致宽度和样式 */}
+      {/* 左侧控制台 */}
       <div className="w-full lg:w-96 space-y-6">
         <div className="bg-[#0f172a]/60 border border-slate-800 rounded-2xl p-8 space-y-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[60px] pointer-events-none"></div>
@@ -121,9 +121,9 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
                   key={tool.id}
                   onClick={() => setSelectedTool(tool)}
                   className={`
-                    flex items-center gap-2 px-3 py-2.5 rounded-xl text-[11px] font-black transition-all border
+                    flex items-center gap-2 px-3 py-3 rounded-xl text-[11px] font-black transition-all border
                     ${selectedTool.id === tool.id 
-                      ? 'bg-cyan-600/10 border-cyan-500/50 text-cyan-400 shadow-inner' 
+                      ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/20 border-cyan-500' 
                       : 'bg-slate-800/30 border-slate-800/50 text-slate-400 hover:bg-slate-800'}
                   `}
                 >
@@ -215,7 +215,7 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
         </div>
       </div>
 
-      {/* 右侧大屏预览 - 与 TextStudio 保持一致样式 */}
+      {/* 右侧大屏预览 */}
       <div className="flex-grow">
         <div className="bg-[#0f172a]/20 border border-slate-900 rounded-2xl min-h-[780px] flex flex-col relative overflow-hidden backdrop-blur-sm shadow-2xl">
           <div className="p-8 border-b border-slate-900 flex items-center justify-between">
