@@ -37,7 +37,7 @@ const StatCard = ({ title, value, change, icon, color }: any) => (
 );
 
 const QuickAction = ({ title, description, path, icon, color }: any) => (
-  <Link to={path} className="flex flex-col gap-5 p-6 glass-card rounded-3xl hover:bg-white/5 transition-all group relative overflow-hidden">
+  <Link to={path} className="flex flex-col gap-5 p-6 glass-card rounded-3xl hover:bg-white/5 transition-all group relative overflow-hidden min-w-[220px] lg:min-w-0 flex-shrink-0">
     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white ${color} shadow-lg group-hover:scale-105 transition-transform duration-500`}>
       {icon}
     </div>
@@ -122,7 +122,9 @@ const Dashboard = () => {
           </h2>
           <Link to="/history" className="text-xs font-black text-indigo-400 hover:text-white uppercase tracking-widest transition-colors">{t('browseAll')} →</Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+        
+        {/* 将 grid 布局改为 flex + 横向溢出，在 xl 屏回归 grid */}
+        <div className="flex overflow-x-auto xl:grid xl:grid-cols-6 gap-6 pb-6 xl:pb-0 hide-scrollbar no-scrollbar scroll-smooth">
           <QuickAction title={isEn ? "Main Image" : "商品主图"} description={isEn ? "Studio quality photos" : "合成商业大片"} path="/image" icon={<ImageIcon size={24} />} color="bg-gradient-to-br from-indigo-600 to-indigo-800" />
           <QuickAction title={isEn ? "HD Video" : "Veo HD 视频"} description={isEn ? "Cinema quality video" : "高清广告视频"} path="/video" icon={<PlayCircle size={24} />} color="bg-gradient-to-br from-rose-600 to-rose-800" />
           <QuickAction title={isEn ? "Copywriting" : "商业文案"} description={isEn ? "High conversion copy" : "爆款电商专家"} path="/text" icon={<FileText size={24} />} color="bg-gradient-to-br from-amber-600 to-amber-800" />
@@ -139,7 +141,6 @@ const Dashboard = () => {
              {t('coreUpdates')}
            </h3>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {/* Fix duplicate path attribute on LatestFeatureCard */}
              <LatestFeatureCard title="Veo 3.1 Cinema" desc={isEn ? "1080P Frame Render" : "1080P 电影级渲染"} icon={<PlayCircle size={20} />} path="/video" tagColor="text-rose-400" />
              <LatestFeatureCard title="Ultra-Texture V3" desc={isEn ? "4K Pixel Precision" : "4K 纹理极致增强"} icon={<ImageIcon size={20} />} path="/image" tagColor="text-cyan-400" />
            </div>
@@ -169,7 +170,6 @@ const Dashboard = () => {
           </h2>
         </div>
         
-        {/* 重构为 3x5 布局：2列(移动端) -> 3列(中屏) -> 5列(大屏) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {popularTemplates.map((template, i) => (
             <div key={i} className="group flex flex-col gap-4 cursor-pointer animate-in fade-in" style={{ animationDelay: `${i * 50}ms` }}>
@@ -187,7 +187,6 @@ const Dashboard = () => {
             </div>
           ))}
           
-          {/* 第 15 格：探索更多 */}
           <div className="group flex flex-col gap-4 cursor-pointer">
             <div className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-4 bg-white/[0.02] hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all shadow-inner group-active:scale-95 duration-500">
               <div className="w-14 h-14 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-slate-500 group-hover:text-indigo-400 group-hover:scale-110 group-hover:rotate-90 transition-all duration-500">

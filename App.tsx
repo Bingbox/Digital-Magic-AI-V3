@@ -65,16 +65,14 @@ const MagicLogo = ({ size = 'md', showText = true, collapsed = false }: { size?:
         </div>
       </div>
 
-      {showText && !collapsed && (
-        <div className="flex flex-col tracking-tight text-slide-in overflow-hidden transition-all duration-500">
-          <span className={`${config.text} font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-indigo-400 group-hover:to-cyan-400 transition-all duration-700 text-glow-sm whitespace-nowrap`}>
-            {t('appName')}
-          </span>
-          <span className={`${config.sub} font-bold text-slate-500 uppercase tracking-[0.3em] mt-1 transition-colors group-hover:text-indigo-400 whitespace-nowrap`}>
-            {t('appSubName')}
-          </span>
-        </div>
-      )}
+      <div className={`flex flex-col tracking-tight overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-0'}`}>
+        <span className={`${config.text} font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-indigo-400 group-hover:to-cyan-400 transition-all duration-700 text-glow-sm whitespace-nowrap`}>
+          {t('appName')}
+        </span>
+        <span className={`${config.sub} font-bold text-slate-500 uppercase tracking-[0.3em] mt-1 transition-colors group-hover:text-indigo-400 whitespace-nowrap`}>
+          {t('appSubName')}
+        </span>
+      </div>
     </div>
   );
 };
@@ -96,14 +94,17 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
   return (
     <>
       {isOpen && <div className="fixed inset-0 bg-black/80 z-40 lg:hidden backdrop-blur-sm" onClick={toggle} />}
-      <aside className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'w-20' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex flex-col h-full bg-[#020617]/40 backdrop-blur-3xl p-4 relative group/sidebar">
+      <aside className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'w-20' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} border-r border-white/5`}>
+        <div className={`flex flex-col h-full bg-[#020617]/40 backdrop-blur-3xl p-4 relative group/sidebar transition-all duration-500 ${isCollapsed ? 'shadow-none' : 'shadow-[20px_0_50px_rgba(0,0,0,0.2)]'}`}>
           
-          <button onClick={toggleCollapse} className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-indigo-600 border border-white/20 rounded-full items-center justify-center text-white z-20 shadow-xl opacity-0 group-hover/sidebar:opacity-100 hover:scale-125 active:scale-90 transition-all duration-300">
-            {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          <button 
+            onClick={toggleCollapse} 
+            className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-[#020617] border border-white/10 backdrop-blur-md rounded-full items-center justify-center text-white z-20 shadow-2xl opacity-0 group-hover/sidebar:opacity-100 hover:scale-125 active:scale-90 transition-all duration-300 hover:border-indigo-500/50"
+          >
+            {isCollapsed ? <ChevronRight size={12} className="text-indigo-400" /> : <ChevronLeft size={12} className="text-indigo-400" />}
           </button>
           
-          <div className={`mb-12 flex-shrink-0 h-12 flex items-center transition-all duration-500 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
+          <div className={`mb-12 flex-shrink-0 h-12 flex items-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'justify-center' : 'px-2'}`}>
              <MagicLogo size="md" collapsed={isCollapsed} />
           </div>
 
@@ -115,31 +116,29 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
                   key={item.path} 
                   to={item.path} 
                   className={`
-                    relative flex items-center rounded-xl transition-all duration-500 group overflow-hidden
+                    relative flex items-center rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group overflow-hidden
                     ${isCollapsed ? 'justify-center h-12 w-12 mx-auto p-0' : 'gap-4 px-4 py-3 w-full'} 
                     ${isActive 
                       ? `bg-indigo-600/10 ${item.color} shadow-[0_0_20px_rgba(99,102,241,0.05)]` 
                       : 'text-slate-500 hover:text-white hover:translate-x-1'}
                   `}
                 >
-                  {/* 悬浮背景流光 */}
                   <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700" />
 
-                  {/* 激活状态激光条 - 已修改为白色高亮 */}
+                  {/* 白色高亮指示条 */}
                   {isActive && (
                     <div className="absolute left-0 w-[3px] h-6 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.9)] animate-pulse" />
                   )}
 
-                  <div className={`relative z-10 transition-all duration-500 ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'group-hover:scale-125 group-hover:translate-y-[-2px] group-hover:text-white'}`}>
+                  <div className={`relative z-10 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isActive ? 'scale-110 drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'group-hover:scale-125 group-hover:translate-y-[-2px] group-hover:text-white'}`}>
                     {item.icon}
                   </div>
                   
-                  {!isCollapsed ? (
-                    <span className={`relative z-10 text-[13px] font-bold tracking-tight uppercase truncate transition-all duration-500 ${isActive ? 'opacity-100 translate-x-1' : 'opacity-50 group-hover:opacity-100'}`}>
-                      {item.name}
-                    </span>
-                  ) : (
-                    /* 科技感 Tooltip */
+                  <span className={`relative z-10 text-[13px] font-bold tracking-tight uppercase truncate transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-[200px] opacity-100 ml-0'} ${isActive ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'}`}>
+                    {item.name}
+                  </span>
+
+                  {isCollapsed && (
                     <div className="absolute left-full ml-4 px-3 py-2 bg-[#020617]/90 backdrop-blur-xl text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 pointer-events-none translate-x-[-15px] group-hover:translate-x-0 transition-all duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[60] whitespace-nowrap">
                        <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-[#020617] border-l border-t border-white/10 rotate-[-45deg]" />
                        {item.name}
@@ -150,20 +149,21 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
             })}
           </nav>
 
-          <div className={`mt-auto pt-6 border-t border-white/5 ${isCollapsed ? 'flex flex-col items-center gap-6' : 'px-2'}`}>
+          <div className={`mt-auto pt-6 border-t border-white/5 transition-all duration-500 ${isCollapsed ? 'flex flex-col items-center gap-6' : 'px-2'}`}>
             {user.isGuest ? (
-               <button onClick={onOpenAuth} className={`flex items-center rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 transition-all duration-500 border border-indigo-500/10 group relative ${isCollapsed ? 'w-12 h-12 justify-center' : 'gap-4 w-full p-3.5'}`}>
+               <button onClick={onOpenAuth} className={`flex items-center rounded-xl bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border border-indigo-500/10 group relative ${isCollapsed ? 'w-12 h-12 justify-center' : 'gap-4 w-full p-3.5'}`}>
                  <CircleUser size={20} className="group-hover:scale-125 transition-transform duration-500" />
-                 {!isCollapsed ? (
-                   <span className="text-xs font-bold uppercase tracking-wider">{t('login')}</span>
-                 ) : (
+                 <span className={`text-xs font-bold uppercase tracking-wider transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[100px] opacity-100'}`}>
+                   {t('login')}
+                 </span>
+                 {isCollapsed && (
                    <div className="absolute left-full ml-4 px-3 py-2 bg-[#020617]/90 backdrop-blur-xl text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 pointer-events-none translate-x-[-15px] group-hover:translate-x-0 transition-all duration-500 shadow-2xl z-[60] whitespace-nowrap">
                      {t('login')}
                    </div>
                  )}
                </button>
             ) : (
-              <div onClick={() => navigate('/profile')} className={`flex items-center cursor-pointer group rounded-xl hover:bg-white/5 transition-all duration-500 relative ${isCollapsed ? 'justify-center w-full' : 'gap-3 p-2'}`}>
+              <div onClick={() => navigate('/profile')} className={`flex items-center cursor-pointer group rounded-xl hover:bg-white/5 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] relative ${isCollapsed ? 'justify-center w-full' : 'gap-3 p-2'}`}>
                 <div className={`relative shrink-0 w-10 h-10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                   <div className="relative w-full h-full rounded-xl bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden">
                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} className="w-full h-full" alt="avatar" />
@@ -172,12 +172,11 @@ const Sidebar = ({ user, isOpen, toggle, isCollapsed, toggleCollapse, onOpenAuth
                     <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
                   </div>
                 </div>
-                {!isCollapsed ? (
-                  <div className="min-w-0">
+                <div className={`min-w-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[150px] opacity-100'}`}>
                     <p className="text-sm font-bold text-white truncate leading-tight group-hover:text-indigo-400 transition-colors">{user.name}</p>
                     <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1">E: {user.magicEnergy}</p>
-                  </div>
-                ) : (
+                </div>
+                {isCollapsed && (
                   <div className="absolute left-full ml-4 px-3 py-2 bg-[#020617]/90 backdrop-blur-xl text-white text-[10px] font-bold uppercase tracking-widest rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 pointer-events-none translate-x-[-15px] group-hover:translate-x-0 transition-all duration-500 shadow-2xl z-[60] whitespace-nowrap">
                     {user.name}
                   </div>
@@ -256,7 +255,8 @@ const AppContent = ({
       <Sidebar user={user} isOpen={sidebarOpen} toggle={() => setSidebarOpen(!sidebarOpen)} isCollapsed={isCollapsed} toggleCollapse={() => setIsCollapsed(!isCollapsed)} onOpenAuth={() => setIsAuthModalOpen(true)} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLogin={setUser} />
       
-      <div className={`transition-all duration-500 flex flex-col min-h-screen ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+      <div className={`transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col min-h-screen ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+        {/* 移除 border-b 线条，仅保留模糊和背景色 */}
         <header className="sticky top-0 z-40 flex items-center px-8 h-16 bg-[#020617]/40 backdrop-blur-3xl">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2.5 text-slate-400 bg-white/5 rounded-xl mr-4"><Menu size={20} /></button>
           
@@ -281,4 +281,56 @@ const AppContent = ({
             ) : (
               <button 
                 onClick={() => setIsAuthModalOpen(true)} 
-                className="h-
+                className="h-10 w-10 flex items-center justify-center bg-transparent text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-xl transition-all hover:scale-110 active:scale-95"
+                title={t('login')}
+              >
+                <LogIn size={18} />
+              </button>
+            )}
+          </div>
+        </header>
+
+        <main className="flex-grow p-6 md:p-10 max-w-[1600px] mx-auto w-full">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/image" element={<ImageStudio user={user} setUser={setUser} onOpenAuth={() => setIsAuthModalOpen(true)} />} />
+            <Route path="/text" element={<TextStudio user={user} setUser={setUser} onOpenAuth={() => setIsAuthModalOpen(true)} />} />
+            <Route path="/video" element={<VideoStudio user={user} setUser={setUser} onOpenAuth={() => setIsAuthModalOpen(true)} />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/profile" element={<ProfileSettings user={user} setUser={setUser} />} />
+            <Route path="/history" element={<HistoryStudio />} />
+          </Routes>
+        </main>
+        
+        {/* 移除 border-t 线条，改用间距和透明度进行区隔 */}
+        <footer className="py-12 px-10 text-center opacity-30">
+           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em]">© 2025 {t('appSubName')} CO. LTD.</p>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [user, setUser] = useState<User>(GUEST_USER);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  return (
+    <HashRouter>
+      <AppContent 
+        user={user} 
+        setUser={setUser} 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen} 
+        isCollapsed={isCollapsed} 
+        setIsCollapsed={setIsCollapsed} 
+        isAuthModalOpen={isAuthModalOpen} 
+        setIsAuthModalOpen={setIsAuthModalOpen} 
+      />
+    </HashRouter>
+  );
+};
+
+export default App;

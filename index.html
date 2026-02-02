@@ -74,6 +74,15 @@
       border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
+    /* 隐藏滚动条 */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
     /* 文字优化类 */
     .text-title {
       letter-spacing: -0.015em;
