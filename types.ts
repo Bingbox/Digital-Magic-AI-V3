@@ -18,6 +18,7 @@ export interface User {
   tier: 'free' | 'pro' | 'enterprise';
   magicEnergy: number;
   isGuest: boolean;
+  avatar?: string;
 }
 
 export interface Task {
@@ -40,4 +41,13 @@ export interface VideoParams {
   resolution: '720p' | '1080p';
   aspectRatio: '16:9' | '9:16';
   duration: number;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  type: 'system' | 'update' | 'feature' | 'alert';
+  timestamp: string;
+  read: boolean;
 }

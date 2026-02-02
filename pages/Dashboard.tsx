@@ -118,33 +118,6 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* 商流枢纽概览快捷入口 */}
-      <section className="space-y-8 animate-in fade-in duration-1000 delay-200">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-4">
-            <div className="p-2 bg-emerald-500/10 rounded-xl">
-              <ShoppingBag size={24} className="text-emerald-400" />
-            </div>
-            {t('ecommerceHub')}
-          </h2>
-          <Link to="/commerce" className="text-xs font-black text-indigo-400 hover:text-white uppercase tracking-widest transition-colors">{t('enterHub')} →</Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {ECOMMERCE_PLATFORMS.slice(0, 4).map(p => (
-            <Link key={p.id} to="/commerce" className="glass-card p-6 rounded-2xl flex items-center gap-4 group hover:bg-white/5 transition-all active:scale-[0.98]">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${p.color} shadow-lg transition-transform group-hover:scale-110`}>
-                {p.icon}
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white tracking-tight uppercase">{t(p.id as any)}</h4>
-                <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-0.5">{t('connectedStatus')}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section className="space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-4">
@@ -189,6 +162,33 @@ const Dashboard = () => {
               {t('goPractice')} <ArrowRight size={16} />
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* 商流枢纽概览快捷入口 - 已移动到此处 */}
+      <section className="space-y-8 animate-in fade-in duration-1000 delay-200">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-4">
+            <div className="p-2 bg-emerald-500/10 rounded-xl">
+              <ShoppingBag size={24} className="text-emerald-400" />
+            </div>
+            {t('ecommerceHub')}
+          </h2>
+          <Link to="/commerce" className="text-xs font-black text-indigo-400 hover:text-white uppercase tracking-widest transition-colors">{t('enterHub')} →</Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {ECOMMERCE_PLATFORMS.slice(0, 4).map(p => (
+            <Link key={p.id} to="/commerce" className="glass-card p-6 rounded-2xl flex items-center gap-4 group hover:bg-white/5 transition-all active:scale-[0.98]">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${p.color} shadow-lg transition-transform group-hover:scale-110`}>
+                {p.icon}
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white tracking-tight uppercase">{t(p.id as any)}</h4>
+                <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-0.5">{t('connectedStatus')}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
