@@ -92,9 +92,9 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="flex flex-col lg:flex-row items-start gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* 左侧控制台 */}
-      <div className="w-full lg:w-96 space-y-6">
+      <div className="w-full lg:w-96 space-y-6 sticky top-24">
         <div className="bg-[#0f172a]/60 border border-slate-800 rounded-2xl p-8 space-y-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[60px] pointer-events-none"></div>
           
