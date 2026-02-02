@@ -27,10 +27,13 @@ import {
   Unplug,
   MoreVertical,
   Download,
-  Share2
+  Share2,
+  Wand2
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { ECOMMERCE_PLATFORMS, Platform, PlatformCategory } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
+import { GeminiService } from '../services/gemini';
 
 interface DistributionTask {
   id: string;
@@ -60,33 +63,8 @@ const CommerceHub = () => {
   const loadMaterials = () => {
     setIsSyncing(true);
     setTimeout(() => {
-      const saved = JSON.parse(localStorage.getItem('magic_deeds') || '[]');
-      const mockInitial = [
-        { 
-          id: 'i1', 
-          title: language === 'zh' ? '旗舰款机械表海报' : 'Watch Ad Poster', 
-          type: 'image', 
-          preview: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800', 
-          content: '' 
-        },
-        { 
-          id: 'i2', 
-          title: language === 'zh' ? '咖啡机营销脚本' : 'Coffee Copywriting', 
-          type: 'text', 
-          preview: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800', 
-          content: language === 'zh' ? '【产品卖点】全自动萃取，15Bar高压压力，让每一杯咖啡都拥有黄金油脂...' : '【USP】Automatic extraction, 15Bar high pressure, golden crema in every cup...'
-        },
-        { 
-          id: 'i3', 
-          title: language === 'zh' ? '护肤品 15s 短片' : 'Skincare 15s Short', 
-          type: 'video', 
-          preview: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800', 
-          content: '' 
-        }
-      ];
-      const combined = [...saved, ...mockInitial];
-      const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
-      setMaterials(unique);
+      const data = GeminiService.getHistory(language);
+      setMaterials(data);
       setIsSyncing(false);
     }, 600);
   };
@@ -227,7 +205,7 @@ const CommerceHub = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filteredMaterials.map(work => (
+            {filteredMaterials.length > 0 ? filteredMaterials.map(work => (
               <div key={work.id} onClick={() => toggleWork(work.id)} className={`group relative bg-slate-900/20 p-3 rounded-2xl border transition-all cursor-pointer ${selectedWorkIds.includes(work.id) ? 'border-indigo-500 bg-indigo-500/5 shadow-lg shadow-indigo-600/5' : 'border-white/5 hover:border-white/10 hover:-translate-y-1'}`}>
                 <div className="aspect-square rounded-xl overflow-hidden bg-black mb-3 border border-white/5 relative">
                   <img src={work.preview} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={work.title} />
@@ -247,7 +225,16 @@ const CommerceHub = () => {
                    <span className="text-[8px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded tracking-tighter uppercase">{t('ready')}</span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-800 bg-slate-900/10 rounded-2xl border border-dashed border-white/5">
+                <Wand2 size={48} className="mb-4 opacity-20" />
+                <p className="text-sm font-black uppercase tracking-widest mb-4 opacity-40">{t('noTask')}</p>
+                <div className="flex gap-4">
+                   <Link to="/image" className="px-6 py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 text-[10px] font-black uppercase rounded-lg transition-all border border-indigo-500/20">{t('imageMagic')}</Link>
+                   <Link to="/video" className="px-6 py-2 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 text-[10px] font-black uppercase rounded-lg transition-all border border-rose-500/20">{t('videoMagic')}</Link>
+                </div>
+              </div>
+            )}
             <div onClick={loadMaterials} className="aspect-square border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-indigo-500/5 hover:border-indigo-500/10 transition-all group bg-black/10">
                <div className={`p-4 rounded-xl bg-slate-900 border border-white/5 text-slate-600 group-hover:text-indigo-400 transition-all duration-700 ${isSyncing ? 'animate-spin' : ''}`}><RefreshCw size={24} /></div>
                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest group-hover:text-slate-400">{t('restock')}</span>
