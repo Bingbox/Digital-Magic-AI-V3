@@ -62,14 +62,21 @@ export class GeminiService {
         }
       }
 
+      const modelName = options.model || AIModel.IMAGE_FLASH;
+      const imageConfig: any = {
+        aspectRatio: options.aspectRatio || "1:1"
+      };
+
+      // CRITICAL: imageSize is ONLY supported for gemini-3-pro-image-preview
+      if (modelName === AIModel.IMAGE_PRO) {
+        imageConfig.imageSize = options.imageSize || "1K";
+      }
+
       const response = await ai.models.generateContent({
-        model: options.model || AIModel.IMAGE_FLASH,
+        model: modelName,
         contents: { parts },
         config: {
-          imageConfig: {
-            aspectRatio: options.aspectRatio || "1:1",
-            imageSize: options.imageSize || "1K"
-          }
+          imageConfig: imageConfig
         }
       });
 
@@ -86,50 +93,66 @@ export class GeminiService {
     });
   }
 
-  static async generateVideo(prompt: string, model: AIModel = AIModel.IMAGE_FLASH, aspectRatio: string = "16:9", options: any = {}) {
-    return callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      
-      const parts: any[] = [{ 
-        text: `[MAGIC VISUAL CREATION] Create a high-quality cinematic commercial visual for: ${prompt}. 
-        Style: Professional film lighting, cinematic color grading, 8k resolution, advertising quality. 
-        Note: Output as a high-fidelity visual asset.` 
-      }];
+  static async generateVideo(prompt: string, model: AIModel = AIModel.VEO_FAST, aspectRatio: string = "16:9", options: any = {}) {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    // Fallback if incorrect model passed
+    let videoModel = model;
+    if (videoModel === AIModel.IMAGE_FLASH || videoModel === AIModel.IMAGE_PRO) {
+      videoModel = AIModel.VEO_FAST;
+    }
 
+    const config: any = {
+      numberOfVideos: 1,
+      resolution: videoModel === AIModel.VEO_HD ? '1080p' : '720p',
+      aspectRatio: aspectRatio,
+    };
+
+    // Define initiation function for retry logic
+    const initGeneration = async () => {
       if (options.image) {
         const match = options.image.match(/^data:([^;]+);base64,(.+)$/);
         if (match) {
-          parts.push({
-            inlineData: {
+          return await ai.models.generateVideos({
+            model: videoModel,
+            prompt: prompt,
+            image: {
               mimeType: match[1],
-              data: match[2]
-            }
+              imageBytes: match[2]
+            },
+            config
           });
         }
       }
-
-      const response = await ai.models.generateContent({
-        model: AIModel.IMAGE_FLASH, 
-        contents: { parts },
-        config: {
-          imageConfig: {
-            aspectRatio: (aspectRatio as any) || "16:9",
-          }
-        }
+      return await ai.models.generateVideos({
+        model: videoModel,
+        prompt: prompt,
+        config
       });
+    };
 
-      if (!response.candidates?.[0]?.content?.parts) {
-        throw new Error("Empty response from model");
-      }
+    // Step 1: Initiate Video Generation (with retry for 429s)
+    let operation = await callWithRetry(initGeneration);
 
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
-      }
-      
-      throw new Error("No visual data generated");
-    });
+    // Step 2: Poll for completion
+    // Note: Video generation takes time (minutes), so we poll with a longer interval
+    while (!operation.done) {
+      await new Promise(resolve => setTimeout(resolve, 5000)); // 5s interval
+      operation = await ai.operations.getVideosOperation({operation: operation});
+    }
+
+    // Step 3: Retrieve Result
+    const vid = operation.response?.generatedVideos?.[0]?.video;
+    if (!vid?.uri) {
+      throw new Error("Video generation completed but no URI returned.");
+    }
+
+    // Step 4: Fetch actual video bytes
+    const response = await fetch(`${vid.uri}&key=${process.env.API_KEY}`);
+    if (!response.ok) throw new Error("Failed to download video content");
+    
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
   }
 
   static getHistory(lang: 'zh' | 'en' = 'zh') {

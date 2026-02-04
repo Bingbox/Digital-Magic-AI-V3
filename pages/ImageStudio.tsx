@@ -13,7 +13,9 @@ import {
   RefreshCw,
   Eye,
   AlertCircle,
-  Key
+  Key,
+  Zap,
+  Crown
 } from 'lucide-react';
 import { IMAGE_TOOLS, ENERGY_COSTS } from '../constants';
 import { GeminiService } from '../services/gemini';
@@ -39,10 +41,13 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
   const [rateLimitError, setRateLimitError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const options = {
-    aspectRatio: '1:1',
-    model: AIModel.IMAGE_FLASH
-  };
+  const [selectedModel, setSelectedModel] = useState<AIModel>(AIModel.IMAGE_FLASH);
+  const [imageSize, setImageSize] = useState<"1K" | "2K" | "4K">("1K");
+  const [aspectRatio, setAspectRatio] = useState<"1:1" | "3:4" | "4:3" | "9:16" | "16:9">("1:1");
+
+  // 判断是否为单张生成模式
+  const isSingleMode = selectedTool.id === 'white_bg';
+  const genCount = isSingleMode ? 1 : 4;
 
   const openKeySelection = async () => {
     if (typeof window !== 'undefined' && (window as any).aistudio) {
@@ -56,8 +61,10 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
     if (!prompt.trim()) return;
     if (user.isGuest) { onOpenAuth(); return; }
 
-    const cost = ENERGY_COSTS.IMAGE_FLASH * 4;
-    if (user.magicEnergy < cost) {
+    const costPerImage = selectedModel === AIModel.IMAGE_PRO ? ENERGY_COSTS.IMAGE_PRO : ENERGY_COSTS.IMAGE_FLASH;
+    const totalCost = costPerImage * genCount;
+    
+    if (user.magicEnergy < totalCost) {
       alert(`${t('insufficientMana')}`);
       return;
     }
@@ -69,14 +76,24 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
     setError(null);
     
     try {
-      const generateTasks = Array(4).fill(null).map(() => 
+      const options: any = {
+        aspectRatio,
+        model: selectedModel
+      };
+
+      if (selectedModel === AIModel.IMAGE_PRO) {
+        options.imageSize = imageSize;
+      }
+
+      // 根据工具模式决定生成数量
+      const generateTasks = Array(genCount).fill(null).map(() => 
         GeminiService.generateImage(`${selectedTool.name}: ${prompt}`, options, referenceImage || undefined)
       );
       
       const imageUrls = await Promise.all(generateTasks);
       setResults(imageUrls);
       
-      setUser({ ...user, magicEnergy: user.magicEnergy - cost });
+      setUser({ ...user, magicEnergy: user.magicEnergy - totalCost });
     } catch (err: any) {
       console.error("Image Studio Error:", err);
       const msg = err.message || JSON.stringify(err);
@@ -154,20 +171,68 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
           </header>
 
           <div className="flex-grow overflow-y-auto no-scrollbar p-6 space-y-6 relative z-10 custom-scrollbar">
+            
+            {/* 内核选择器 */}
+            <div className="space-y-3">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t('engineSelect')}</label>
+              <div className="space-y-2">
+                 <button 
+                  onClick={() => setSelectedModel(AIModel.IMAGE_FLASH)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-xl border transition-all text-left group ${selectedModel === AIModel.IMAGE_FLASH ? 'bg-cyan-600/10 border-cyan-500 shadow-lg' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`}
+                 >
+                    <div className={`p-2 rounded-lg ${selectedModel === AIModel.IMAGE_FLASH ? 'bg-cyan-600 text-white' : 'bg-slate-900 text-slate-600 group-hover:text-slate-400'}`}>
+                       <Zap size={14} />
+                    </div>
+                    <div>
+                      <p className={`text-[11px] font-black uppercase tracking-tight ${selectedModel === AIModel.IMAGE_FLASH ? 'text-white' : 'text-slate-500'}`}>{t('standardEngine')}</p>
+                      <p className="text-[9px] text-slate-500 font-medium leading-tight mt-0.5">{t('standardEngineDesc')}</p>
+                    </div>
+                 </button>
+
+                 <button 
+                  onClick={() => setSelectedModel(AIModel.IMAGE_PRO)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-xl border transition-all text-left group ${selectedModel === AIModel.IMAGE_PRO ? 'bg-indigo-600/10 border-indigo-500 shadow-lg' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`}
+                 >
+                    <div className={`p-2 rounded-lg ${selectedModel === AIModel.IMAGE_PRO ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-600 group-hover:text-slate-400'}`}>
+                       <Crown size={14} />
+                    </div>
+                    <div>
+                      <p className={`text-[11px] font-black uppercase tracking-tight ${selectedModel === AIModel.IMAGE_PRO ? 'text-white' : 'text-slate-500'}`}>{t('proEngine')}</p>
+                      <p className="text-[9px] text-slate-500 font-medium leading-tight mt-0.5">{t('proEngineDesc')}</p>
+                    </div>
+                 </button>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t('templates')}</label>
               <div className="grid grid-cols-2 gap-2">
                 {IMAGE_TOOLS.map(tool => (
                   <button 
                     key={tool.id} 
-                    onClick={() => setSelectedTool(tool)} 
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-[10px] font-black transition-all border ${selectedTool.id === tool.id ? 'bg-cyan-600 text-white border-cyan-500 shadow-md' : 'bg-slate-800/30 text-slate-400 border-slate-800/50 hover:bg-slate-800'}`}
+                    onClick={() => {
+                      setSelectedTool(tool);
+                      setResults([]); // 切换工具时清空预览
+                    }} 
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-[10px] font-black transition-all border ${selectedTool.id === tool.id ? 'bg-slate-700 text-white border-slate-600 shadow-md' : 'bg-slate-800/30 text-slate-400 border-slate-800/50 hover:bg-slate-800'}`}
                   >
                     {tool.name}
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* 动态参数显示 */}
+            {selectedModel === AIModel.IMAGE_PRO && (
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">分辨率级别</label>
+                <div className="grid grid-cols-3 gap-2">
+                   {["1K", "2K", "4K"].map(size => (
+                     <button key={size} onClick={() => setImageSize(size as any)} className={`py-2 rounded-lg text-[10px] font-black border transition-all ${imageSize === size ? 'bg-indigo-600/10 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-600'}`}>{size}</button>
+                   ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{t('promptLabel')}</label>
@@ -239,14 +304,14 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
             <button 
               onClick={handleGenerate} 
               disabled={isGenerating || !prompt} 
-              className="w-full py-4 rounded-lg font-black uppercase tracking-widest flex flex-col items-center justify-center gap-0.5 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-xl active:scale-[0.98] disabled:opacity-40 transition-all"
+              className={`w-full py-4 rounded-lg font-black uppercase tracking-widest flex flex-col items-center justify-center gap-0.5 shadow-xl active:scale-[0.98] disabled:opacity-40 transition-all ${selectedModel === AIModel.IMAGE_PRO ? 'bg-gradient-to-r from-indigo-600 to-purple-600' : 'bg-gradient-to-r from-cyan-600 to-indigo-600'}`}
             >
               {isGenerating ? (
                 <div className="flex items-center gap-2 text-xs"><Loader2 className="animate-spin" size={16} /><span>{t('pixelReconstruct')}</span></div>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 text-xs"><Brain size={16} /><span>{t('startMagic')} (x4)</span></div>
-                  <span className="text-[8px] opacity-60 font-bold">{ENERGY_COSTS.IMAGE_FLASH * 4} {t('energy')}</span>
+                  <div className="flex items-center gap-2 text-xs"><Brain size={16} /><span>{t('startMagic')} (x{genCount})</span></div>
+                  <span className="text-[8px] opacity-60 font-bold">{(selectedModel === AIModel.IMAGE_PRO ? ENERGY_COSTS.IMAGE_PRO : ENERGY_COSTS.IMAGE_FLASH) * genCount} {t('energy')}</span>
                 </>
               )}
             </button>
@@ -258,15 +323,19 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
       <div className="flex-grow flex flex-col bg-[#0f172a]/40 border border-white/5 rounded-xl overflow-hidden shadow-2xl backdrop-blur-md h-full">
         <header className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-slate-900/60 shrink-0">
           <div className="flex items-center gap-3">
-            <Sparkles size={18} className="text-cyan-500" />
+            <Sparkles size={18} className={selectedModel === AIModel.IMAGE_PRO ? "text-indigo-400" : "text-cyan-400"} />
             <h3 className="text-sm font-black tracking-tight text-white uppercase">{t('genVisuals')}</h3>
-            {results.length > 0 && <span className="px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded text-[9px] font-black text-cyan-400 uppercase tracking-widest">BATCH READY</span>}
+            {results.length > 0 && (
+              <span className={`px-2 py-0.5 border rounded text-[9px] font-black uppercase tracking-widest ${selectedModel === AIModel.IMAGE_PRO ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'}`}>
+                {isSingleMode ? 'SINGLE ASSET READY' : 'BATCH READY'}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={handleGenerate} 
               disabled={isGenerating || !prompt}
-              className="p-2 bg-white/5 text-slate-400 hover:text-cyan-400 hover:bg-white/10 border border-white/5 rounded-lg transition-all disabled:opacity-20" 
+              className={`p-2 bg-white/5 transition-all disabled:opacity-20 border border-white/5 rounded-lg ${selectedModel === AIModel.IMAGE_PRO ? 'text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10'}`} 
               title={t('startMagic')}
             >
               <RefreshCw size={18} className={isGenerating ? 'animate-spin' : ''} />
@@ -276,10 +345,10 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
 
         <div className="flex-grow p-6 overflow-y-auto no-scrollbar scroll-smooth custom-scrollbar">
           {isGenerating && results.length === 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Array(4).fill(null).map((_, i) => (
+            <div className={`grid gap-6 ${isSingleMode ? 'grid-cols-1 max-w-xl mx-auto' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {Array(genCount).fill(null).map((_, i) => (
                 <div key={i} className="aspect-square rounded-lg bg-slate-950 border border-slate-800 flex flex-col items-center justify-center gap-3 animate-pulse relative overflow-hidden">
-                   <div className="w-12 h-12 rounded-full border-4 border-cyan-500/10 border-t-cyan-500 animate-spin" />
+                   <div className={`w-12 h-12 rounded-full border-4 animate-spin ${selectedModel === AIModel.IMAGE_PRO ? 'border-indigo-500/10 border-t-indigo-500' : 'border-cyan-500/10 border-t-cyan-500'}`} />
                    <p className="text-[9px] font-black text-slate-800 uppercase tracking-[0.2em]">Processing {i+1}</p>
                 </div>
               ))}
@@ -295,7 +364,7 @@ const ImageStudio = ({ user, setUser, onOpenAuth }: Props) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`grid gap-6 ${isSingleMode ? 'grid-cols-1 max-w-xl mx-auto' : 'grid-cols-1 md:grid-cols-2'}`}>
               {results.map((res, idx) => (
                 <div key={`${res}-${idx}`} className="group relative aspect-square rounded-lg overflow-hidden bg-slate-950 border border-white/5 shadow-xl transition-all duration-500 hover:border-cyan-500/30 animate-in zoom-in-95 duration-500">
                   <img src={res} className="w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-105" alt="result" />

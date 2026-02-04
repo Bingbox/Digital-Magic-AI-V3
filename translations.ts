@@ -262,7 +262,14 @@ export const translations = {
     newPassword: "新密码",
     confirmPassword: "确认新密码",
     updatePassword: "更新密码",
-    backToLogin: "返回列表"
+    backToLogin: "返回列表",
+
+    // Image Engine
+    standardEngine: "标准渲染内核",
+    standardEngineDesc: "极致生成速度，全能创意专家",
+    proEngine: "专业旗舰内核",
+    proEngineDesc: "超高分辨率，像素级商业质感",
+    engineSelect: "选择魔法内核"
   },
   en: {
     appName: "Digital Magic",
@@ -523,6 +530,13 @@ export const translations = {
     newPassword: "New",
     confirmPassword: "Confirm",
     updatePassword: "Update",
-    backToLogin: "Back"
+    backToLogin: "Back",
+
+    // Image Engine
+    standardEngine: "Standard Engine",
+    standardEngineDesc: "Extreme Speed, Creative Expert",
+    proEngine: "Professional Engine",
+    proEngineDesc: "Ultra-high Resolution, Pixel Texture",
+    engineSelect: "Magic Core Select"
   }
 };

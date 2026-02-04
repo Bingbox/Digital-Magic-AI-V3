@@ -71,29 +71,40 @@ const MagicLogo = ({ size = 'md', collapsed = false }: { size?: 'sm' | 'md' | 'l
   const { t } = useLanguage();
   
   const sizeClasses = {
-    sm: { container: 'gap-2', box: 'w-8 h-8', icon: 16, text: 'text-base', sub: 'text-[7px]' },
-    md: { container: 'gap-2.5', box: 'w-9 h-9', icon: 18, text: 'text-base', sub: 'text-[7px]' },
-    lg: { container: 'gap-3', box: 'w-12 h-12', icon: 24, text: 'text-xl', sub: 'text-[9px]' },
+    sm: { container: 'gap-2', box: 'w-9 h-9', icon: 18, text: 'text-base', sub: 'text-[8px]' },
+    md: { container: 'gap-3', box: 'w-11 h-11', icon: 22, text: 'text-lg', sub: 'text-[8px]' },
+    lg: { container: 'gap-4', box: 'w-14 h-14', icon: 28, text: 'text-2xl', sub: 'text-[10px]' },
   };
   const config = sizeClasses[size];
 
   return (
     <div className={`flex items-center ${collapsed ? 'justify-center' : config.container} group relative cursor-pointer w-full`}>
-      <div className={`relative ${config.box} flex-shrink-0 flex items-center justify-center transition-all duration-700 group-hover:rotate-[360deg]`}>
-        <div className="absolute inset-[-3px] border border-dashed border-indigo-500/20 rounded-full animate-[spin_10s_linear_infinite] group-hover:border-indigo-500/50 group-hover:animate-[spin_3s_linear_infinite]"></div>
-        <div className="absolute inset-0 bg-indigo-500/30 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-        <div className="relative h-full w-full bg-[#020617] rounded-xl border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl backdrop-blur-md group-hover:border-indigo-500/40 transition-colors">
-          <div className="relative text-indigo-400 group-hover:text-white transition-all duration-500 transform group-hover:scale-110">
+      <div className={`relative ${config.box} flex-shrink-0 flex items-center justify-center transition-all duration-700`}>
+        {/* 外层能量环 - 逆时针旋转 */}
+        <div className="absolute inset-[-4px] border-[1px] border-dashed border-cyan-500/30 rounded-full animate-[spin_15s_linear_infinite_reverse] group-hover:border-cyan-400 group-hover:animate-[spin_4s_linear_infinite_reverse]"></div>
+        
+        {/* 内层能量环 - 顺时针旋转 */}
+        <div className="absolute inset-[-8px] border-[1px] border-indigo-500/10 rounded-full animate-[spin_20s_linear_infinite] group-hover:border-indigo-500/40 group-hover:animate-[spin_6s_linear_infinite]"></div>
+        
+        {/* 核心光晕 */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 to-cyan-400/20 rounded-xl blur-lg opacity-40 group-hover:opacity-100 group-hover:scale-125 transition-all duration-1000"></div>
+        
+        {/* Logo 容器 */}
+        <div className="relative h-full w-full bg-[#03081a] rounded-xl border border-white/10 flex items-center justify-center overflow-hidden shadow-[0_0_20px_rgba(79,70,229,0.2)] backdrop-blur-xl group-hover:border-cyan-500/50 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.3)] transition-all duration-500">
+          {/* 数字背景扫描效果 */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] pointer-events-none"></div>
+          
+          <div className="relative text-cyan-400 group-hover:text-white transition-all duration-500 transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">
             <Wand2 size={config.icon} strokeWidth={1.5} className="animate-pulse" />
           </div>
         </div>
       </div>
 
-      <div className={`flex flex-col tracking-tight overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[140px] opacity-100 ml-3'}`}>
-        <span className={`${config.text} font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-indigo-400 group-hover:to-cyan-400 transition-all duration-700 text-glow-sm whitespace-nowrap`}>
+      <div className={`flex flex-col tracking-tight overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${collapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[160px] opacity-100 ml-3'}`}>
+        <span className={`${config.text} font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-indigo-400 group-hover:from-cyan-300 group-hover:via-white group-hover:to-emerald-400 transition-all duration-700 whitespace-nowrap drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>
           {t('appName')}
         </span>
-        <span className={`${config.sub} font-bold text-slate-500 uppercase tracking-[0.2em] mt-1 transition-colors group-hover:text-indigo-400 whitespace-nowrap`}>
+        <span className={`${config.sub} font-black text-slate-500 uppercase tracking-[0.3em] mt-1.5 transition-colors group-hover:text-cyan-500/80 whitespace-nowrap`}>
           {t('appSubName')}
         </span>
       </div>
@@ -121,7 +132,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
       <aside className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isCollapsed ? 'w-16' : 'w-52'} ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} border-r border-white/5`}>
         <div className={`flex flex-col h-full bg-[#020617]/40 backdrop-blur-3xl p-3 relative group/sidebar transition-all duration-500 ${isCollapsed ? 'shadow-none' : 'shadow-[15px_0_40px_rgba(0,0,0,0.15)]'}`}>
           
-          {/* 切换按钮 - 移除外层父容器的 overflow 限制以显示按钮 */}
+          {/* 切换按钮 */}
           <button 
             onClick={toggleCollapse} 
             className="hidden lg:flex absolute -right-3 top-24 w-6 h-6 bg-[#0f172a] border border-white/10 backdrop-blur-md rounded-full items-center justify-center text-white z-[60] shadow-2xl opacity-100 hover:scale-125 active:scale-90 transition-all duration-300 hover:border-indigo-500/50 group-hover/sidebar:opacity-100"
@@ -129,7 +140,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
             {isCollapsed ? <ChevronRight size={12} className="text-indigo-400" /> : <ChevronLeft size={12} className="text-indigo-400" />}
           </button>
           
-          <div className={`mb-10 mt-2 flex-shrink-0 h-10 flex items-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden ${isCollapsed ? 'justify-center' : 'px-1'}`}>
+          <div className={`mb-10 mt-3 flex-shrink-0 h-12 flex items-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden ${isCollapsed ? 'justify-center' : 'px-1'}`}>
              <MagicLogo size="md" collapsed={isCollapsed} />
           </div>
 
@@ -156,7 +167,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
                     {React.cloneElement(item.icon as React.ReactElement, { size: isCollapsed ? 20 : 18 })}
                   </div>
                   {!isCollapsed && (
-                    <span className={`relative z-10 text-[12px] font-bold tracking-tight uppercase truncate transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]`}>
+                    <span className={`relative z-10 text-[14px] font-bold tracking-tight uppercase truncate transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]`}>
                       {item.name}
                     </span>
                   )}
@@ -180,7 +191,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, toggleCollapse }: any) => {
                   <CircleUser size={isCollapsed ? 20 : 18} />
                 </div>
                 {!isCollapsed && (
-                  <span className="relative z-10 text-[12px] font-bold uppercase tracking-tight truncate">
+                  <span className="relative z-10 text-[14px] font-bold uppercase tracking-tight truncate">
                     {t('profileInfo')}
                   </span>
                 )}
