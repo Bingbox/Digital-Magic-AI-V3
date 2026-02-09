@@ -1,5 +1,4 @@
 
-import { GoogleGenAI, GenerateContentResponse, VideoGenerationReferenceType } from "@google/genai";
 import { AIModel } from "../types";
 
 /**
@@ -23,22 +22,39 @@ async function callWithRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000)
 export class GeminiService {
   static async generateText(prompt: string, model: AIModel = AIModel.FLASH, systemInstruction?: string) {
     return callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: {
-          systemInstruction: systemInstruction || "你是一位数字商业化专家。你擅长创作高转化率的商业文案。",
-          temperature: 0.7,
+      const baseUrl = process.env.GEMINI_BASE_URL || 'https://aihubmix.com/v1';
+      const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+      
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
         },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { role: 'system', content: systemInstruction || "你是一位数字商业化专家。你擅长创作高转化率的商业文案。" },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+        })
       });
-      return response.text;
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`API Error: ${response.status} - ${error}`);
+      }
+      
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || '';
     });
   }
 
   static async generateImage(prompt: string, options: any, referenceImage?: string) {
     return callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const baseUrl = process.env.GEMINI_BASE_URL || 'https://aihubmix.com/v1';
+      const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
       
       const ecommercePrompt = `[ECOMMERCE HIGH-FIDELITY MODE]
       Task: ${prompt}.
@@ -47,54 +63,51 @@ export class GeminiService {
       2. DO NOT change shape, labels, colors, or textures of the primary subject.
       3. Style: Commercial high-end photography, professional studio lighting, realistic environment.
       4. Output: 4K resolution, hyper-realistic, sharp focus.`;
+
+      const messageContent: any[] = [{ type: 'text', text: ecommercePrompt }];
       
-      const parts: any[] = [{ text: ecommercePrompt }];
-
       if (referenceImage) {
-        const match = referenceImage.match(/^data:([^;]+);base64,(.+)$/);
-        if (match) {
-          parts.push({
-            inlineData: {
-              mimeType: match[1],
-              data: match[2]
-            }
-          });
-        }
+        messageContent.push({
+          type: 'image_url',
+          image_url: { url: referenceImage }
+        });
       }
 
-      const modelName = options.model || AIModel.IMAGE_FLASH;
-      const imageConfig: any = {
-        aspectRatio: options.aspectRatio || "1:1"
-      };
-
-      // CRITICAL: imageSize is ONLY supported for gemini-3-pro-image-preview
-      if (modelName === AIModel.IMAGE_PRO) {
-        imageConfig.imageSize = options.imageSize || "1K";
-      }
-
-      const response = await ai.models.generateContent({
-        model: modelName,
-        contents: { parts },
-        config: {
-          imageConfig: imageConfig
-        }
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: options.model || AIModel.IMAGE_FLASH,
+          messages: [
+            { role: 'user', content: messageContent }
+          ],
+          temperature: 0.7,
+        })
       });
-
-      if (!response.candidates?.[0]?.content?.parts) {
-        throw new Error("Empty response from model");
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`API Error: ${response.status} - ${error}`);
       }
-
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
+      
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      // 如果响应中包含 base64 图像数据
+      if (content && typeof content === 'string' && content.includes('data:image')) {
+        return content.match(/data:image[^"]+/)?.[0] || content;
       }
-      throw new Error("No image data found in response");
+      return content || '';
     });
   }
 
+
   static async generateVideo(prompt: string, model: AIModel = AIModel.VEO_FAST, aspectRatio: string = "16:9", options: any = {}) {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const baseUrl = process.env.GEMINI_BASE_URL || 'https://aihubmix.com/v1';
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
     
     // Fallback if incorrect model passed
     let videoModel = model;
@@ -102,57 +115,43 @@ export class GeminiService {
       videoModel = AIModel.VEO_FAST;
     }
 
-    const config: any = {
-      numberOfVideos: 1,
-      resolution: videoModel === AIModel.VEO_HD ? '1080p' : '720p',
-      aspectRatio: aspectRatio,
-    };
-
-    // Define initiation function for retry logic
-    const initGeneration = async () => {
-      if (options.image) {
-        const match = options.image.match(/^data:([^;]+);base64,(.+)$/);
-        if (match) {
-          return await ai.models.generateVideos({
-            model: videoModel,
-            prompt: prompt,
-            image: {
-              mimeType: match[1],
-              imageBytes: match[2]
-            },
-            config
-          });
-        }
-      }
-      return await ai.models.generateVideos({
-        model: videoModel,
-        prompt: prompt,
-        config
-      });
-    };
-
-    // Step 1: Initiate Video Generation (with retry for 429s)
-    let operation = await callWithRetry(initGeneration);
-
-    // Step 2: Poll for completion
-    // Note: Video generation takes time (minutes), so we poll with a longer interval
-    while (!operation.done) {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // 5s interval
-      operation = await ai.operations.getVideosOperation({operation: operation});
-    }
-
-    // Step 3: Retrieve Result
-    const vid = operation.response?.generatedVideos?.[0]?.video;
-    if (!vid?.uri) {
-      throw new Error("Video generation completed but no URI returned.");
-    }
-
-    // Step 4: Fetch actual video bytes
-    const response = await fetch(`${vid.uri}&key=${process.env.API_KEY}`);
-    if (!response.ok) throw new Error("Failed to download video content");
+    const messageContent: any[] = [{ type: 'text', text: prompt }];
     
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    if (options.image) {
+      messageContent.push({
+        type: 'image_url',
+        image_url: { url: options.image }
+      });
+    }
+
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: videoModel,
+        messages: [
+          { role: 'user', content: messageContent }
+        ],
+        temperature: 0.7,
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`API Error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    
+    // 返回视频 URL 或数据
+    if (content) {
+      return URL.createObjectURL(new Blob([content], { type: 'video/mp4' }));
+    }
+    throw new Error("No video data found in response");
   }
 
   static getHistory(lang: 'zh' | 'en' = 'zh') {
